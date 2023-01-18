@@ -1,5 +1,5 @@
 ---
-title: 'React の状態管理ライブラリを10個比較してみた'
+title: 'React の状態管理ライブラリ10選'
 emoji: '😎'
 type: 'tech'
 topics: ['react']
@@ -18,7 +18,7 @@ published: false
 
 筆者もこのような状況に直面しました。状態が 5 個程度であれば何の問題もないかもしれません。ただそれが 10、20..と増えていった場合、**いつ、なぜ、どのように状態を制御するのかがわからなくなります**。このような複雑さを少しでも楽に管理し、デグレすることを恐れずに自信を持って開発できるよう日々ベストプラクティスが模索され、ライブラリが開発されているというわけです。
 
-という、the 技術記事 のような書き出しをしましたが、今回は設計論的なお堅い話をするわけではなく、主要な React の状態管理ライブラリを 10 個筆者が触ってみて感じたことや、それぞれの特徴、基本的な使い方について書きたいと思います。優劣をつけるわけではありません。基本的に公式サイトを参考にしています。
+という、the 技術記事 のような書き出しをしましたが、今回は設計論的なお堅い話をするわけではなく、主要な React の状態管理ライブラリを 10 個筆者が触ってみて感じたことや、それぞれの特徴、基本的な使い方について書きたいと思います。。比較表などを使用して優劣をつけるわけではありません。基本的に公式サイトを参考にしています。
 
 登場するライブラリはこちら。
 
@@ -47,38 +47,43 @@ https://redux.js.org/
 - 大規模なアプリケーションでは特に力を発揮
 - 成熟したエコシステム
 - [1.6kB](https://bundlephobia.com/package/redux@4.2.0) + [4.7kB](https://bundlephobia.com/package/react-redux@8.0.5) (redux + react-redux)
+- [13.5kB](https://bundlephobia.com/package/@reduxjs/toolkit@1.9.1) (Redux Toolkit)
 
 :::message
 本記事に記載のサイズは　 minified + gzipped されたものです。
 :::
 
-※ この記事では Action や Reducer など Redux の基本的な概念の説明はしません。
+※ この記事では Action や Reducer、Dispatch など Redux の基本的な概念の説明は行いません。もし Redux に触れたことがない方は、公式サイトの[チュートリアル](https://redux.js.org/tutorials/essentials/part-1-overview-concepts)がとてもわかりやすいためそちらをご参考ください。
 
-React の状態管理ライブラリではもっとも使用され有名である Redux ですが、React が Hooks の世界に突入後、一気に人気が落ちた気がします。起こりうるすべての状態変化を記述するために Action を書き、さらにそれらの Action を処理するために複数の Reducer を書くと、多くのコードが必要になり、すぐにメンテナンスコストが肥大化してしまうことが問題点の一つでしょう。
+React の状態管理ライブラリではもっとも使用され有名である Redux ですが、React が Hooks の世界に突入後、一気に人気が落ちた気がします。ローカルステートは `useState` で手軽に制御できる反面、グルーバルステートは起こりうるすべての状態変化パターンの Action を書き、さらにそれらの Action を処理するために Reducer を書くと、多くのコードが必要になり、すぐにメンテナンスコストが肥大化してしまうことが問題点の一つでしょう。
 
 そのような問題を解決するために公式が Redux Toolkit (RTK) を作成しました。ボイラープレートを減らし、デフォルトでベストプラクティスが組み込まれ、Redux アプリケーションをより簡単に書くことができるようにしたツールセットです。
 
 > If you are writing any Redux logic today, you should be using Redux Toolkit to write that code!
 
-公式も Redux を使っているなら RTK を使った方がいいよ！と言っています。
+公式も RTK を使いな！と言っています。
 
-具体的は書き方を見ていく前に Redux の 3 つの原則をおさらいしておきます。
+具体的な書き方を見ていく前に Redux の 3 つの原則をおさらいしておきます。
 
 ### Single source of truth
 
-アプリケーションのグローバルな状態は、1 つのストア内のオブジェクトツリーに保存されます。複数ストアを作成することはできません。
+アプリケーションのグローバルステートは、1 つのストア内のオブジェクトツリーに保存されます。複数ストアを作成することはできません。
 
 ### State is read-only
 
-状態は読み取り専用です。状態を変更する唯一の方法は、何が起こったかを記述したプレーンオブジェクトである Action を発行することです。アプリケーションで何が起こったかを記述するイベントと考えることができます。ストアを直接書き換えることはできず、UI イベント、ネットワークコールバック、あるいは WebSocket のような他のソースからのデータであろうと、最終的には Action を発行する必要があります。
+ステートは読み取り専用です。ステートを変更する唯一の方法は、何が起こったかを記述したプレーンオブジェクトである Action を発行することです。アプリケーションで何が起こったかを記述するイベントと考えることができます。ストアを直接書き換えることはできず、UI イベント、ネットワークコールバック、あるいは WebSocket のような他のソースからのデータであろうと、最終的には Action を発行する必要があります。
 
 ### Changes are made with pure functions
 
-Action によって状態がどのように更新されるかを指定するために Reducer を書きます。Reducer は前の状態と Action の内容をもとに新しい状態を計算する純粋な関数です。既存の状態を変更することは許されません。その代わり、既存の状態をコピーし、コピーされた値に変更を加えることで不変の更新を行います。Action がイベントなのであれば、Reducer はイベントリスナーと考えることができるでしょう。`(state, action) => newState`
+Action によってステートがどのように更新されるかを指定するために Reducer を書きます。Reducer は前のステートと Action の内容をもとに新しいステートを計算する純粋な関数です。既存のステートを変更することは許されません。その代わり、既存のステートをコピーし、コピーされた値に変更を加えることで不変の更新を行います。Action がイベントなのであれば、Reducer はイベントリスナーと考えることができるでしょう。`(state, action) => newState`
 
-[公式サイト](https://redux.js.org/tutorials/essentials/part-1-overview-concepts)の図をお借りします。矢印に注目すると状態の更新フローが一方通行になっていることがわかります。このようにすることで複雑なデータ管理に秩序を持たせ、予測可能な状態管理を実現しています。
+ステートの更新フローを簡素化した公式サイトの図をお借りします。矢印に注目すると一方通行になっていることがわかります。このようにすることで複雑なデータ管理に秩序を持たせ、予測可能な状態管理を実現しています。
 
 ![](https://storage.googleapis.com/zenn-user-upload/b47d4ad813d9-20230115.png)
+
+より具体的な図がこちらです。難しいことをやっているように見えますが、Action を ストアに送り、Action の内容をもとに Reducer が ステート更新し、更新したことが UI へ通知され、新しいステートをもとに再レンダリングしているだけです。
+
+![](https://storage.googleapis.com/zenn-user-upload/37638d33b12d-20230118.gif)
 
 前置きが長くなりましたが RTK のコードを見ていきます。まずは `configureStore` で空のストアを作成します。
 
@@ -104,7 +109,7 @@ ReactDOM.render(
 )
 ```
 
-`createSlice` でSlice を作成していきます。Slice とは RTK の概念で、ストアを分割して管理しやすくしたものです。分割はあくまで見かけ上の話であり実際のストアは 1 つです。
+`createSlice` で Slice を作成していきます。Slice とは RTK の概念で、ストアを分割して管理しやすくしたものです。分割はあくまで見かけ上の話であり実際のストアは 1 つです。
 
 ```js:src/features/counter/counterSlice.js
 import { createSlice } from '@reduxjs/toolkit'
@@ -116,8 +121,8 @@ export const counterSlice = createSlice({
   },
   reducers: {
     increment: state => {
-      // Redux のルール違反である現在の状態を変更しているように見えますが
-      // Immer ライブラリを使用しているため、実際には現在の状態を変更していません。
+      // Redux のルール違反である「現在の状態を変更」しているように見えますが
+      // 内部で Immer を使用しているため、実際には現在の状態を変更していません。
       // 変更を検知し内部的に新しい状態を作成しています。
       state.value += 1
     },
@@ -144,7 +149,7 @@ import counterReducer from '../features/counter/counterSlice'
 
 export default configureStore({
   reducer: {
-    counter: counterReducer
+    counter: counterReducer // 追加
   }
 })
 ```
@@ -179,7 +184,7 @@ export function Counter() {
 }
 ```
 
-基本的な Redux の書き方を見てきましたが、個人的に結構好きです。確かにこの後紹介するライブラリ達と比べると冗長に感じることもありますが、ルールが厳密である分アプリケーションが大規模になり開発者が増えるほど力を発揮すると思います。また、Redux を使用しない場合でも、Redux の誕生背景や設計仕様を学ぶことは開発者として成長するいい機会になるはずです。
+基本的な Redux の書き方を見てきました。確かにこの後紹介するライブラリ達と比べると冗長に感じることもありますが、ルールが厳密である分アプリケーションが大規模になり開発者が増えるほど力を発揮すると思います。また、Redux を使用しない場合でも、Redux の誕生背景や設計仕様を学ぶことは開発者として成長するいい機会になるはずです。
 
 最後に Redux に関する良記事もご紹介しておきます。
 
@@ -198,7 +203,7 @@ https://recoiljs.org/
 - 状態定義は分散型であるためコード分割が可能
 - [23.4kB](https://bundlephobia.com/package/recoil@0.7.6) (結構大きいな...)
 
-Recoil は Redux の一強を打ち砕く筆頭だと思っています。Meta 社が開発していることもあり React との相性もいいです。React 開発者であればすぐに使うことができるでしょう。早速見ていきます。
+Recoil は Redux の一強を打ち砕く筆頭候補だと思っています。Meta 社が開発していることもあり React との相性もいいです。React 開発者であればすぐに使うことができるでしょう。早速見ていきます。
 
 Recoil の状態を使用するコンポーネントは、`RecoilRoot` で囲む必要があります。Redux や Context の Provider 相当です。
 
@@ -214,7 +219,7 @@ function App() {
 }
 ```
 
-基本概念の Atom を見ていきます。Recoil では Atom が データストアの役割を担っており、Atom は複数作成可能です。Atom を作成する際は `key` を指定する必要があります。これはグローバルでユニークにする必要があるのですが、どのように管理するのがベストなのでしょか。今回の例のように意味を持たせて管理するべきなのか、UUID のようなものを使用するのか...。
+基本概念の Atom を見ていきます。Recoil では Atom が データストアの役割を担っており、Atom は複数作成可能です。Atom を作成する際は `key` を指定する必要があります。これはグローバルでユニークにする必要があるのですが、どのように管理するのがベストなのでしょか。今回の例のように意味を持つ文字列で管理するべきなのか、UUID のようなものを使用するのか...。
 
 ```js
 // Atom を作成
@@ -226,11 +231,14 @@ const fontSizeState = atom({
 
 コンポーネントから Atom のデータを読み取ってみます。
 
-```js
+```jsx
 function FontButton() {
   const [fontSize, setFontSize] = useRecoilState(fontSizeState);
   return (
-    <button onClick={() => setFontSize((size) => size + 1)} style={{ fontSize }}>
+    <button
+      onClick={() => setFontSize((size) => size + 1)}
+      style={{ fontSize }}
+    >
       Click to Enlarge
     </button>
   );
@@ -265,7 +273,7 @@ const fontSizeLabelState = selector({
 
 コンポーネントから Selector を使用してみます。`fontSizeLabelState` Selector は値を更新しないため、`useRecoilValue` を使用します。
 
-```js
+```jsx
 function FontButton() {
   const [fontSize, setFontSize] = useRecoilState(fontSizeState);
   const fontSizeLabel = useRecoilValue(fontSizeLabelState);
@@ -274,7 +282,10 @@ function FontButton() {
     <>
       <div>Current font size: {fontSizeLabel}</div>
 
-      <button onClick={() => setFontSize(fontSize + 1)} style={{ fontSize }}>
+      <button
+        onClick={() => setFontSize(fontSize + 1)}
+        style={{ fontSize }}
+      >
         Click to Enlarge
       </button>
     </>
@@ -282,7 +293,7 @@ function FontButton() {
 }
 ```
 
-Redux の中央集権制と比較すると Recoil は地方分権制とでも言えるでしょうか。つまり Redux ではステートが一箇所に集中するのに対し、Recoil は複数に分割することができます。「ある 2 つのコンポーネントで状態を共有したいけど位置関係的に Props のバケツリレーはつらい。でも Redux のストアに入れるほどでもない...。」といった場合でも、Recoil なら 2 つのコンポーネントでのみ使用される Atom を作成するだけなので、気軽にグローバルステートを作成することができます。また、Redux のように特定のアーキテクチャが決まっていません。１つの Atom に状態を詰め込めば Redux のようにも使えます。開発者に状態の分割方法やフォルダ構成、ロジックの置き場所などの決定権が委ねられられているため実力の見せ所でしょう。
+Redux の中央集権制とすると Recoil は地方分権制とでも言えるでしょうか。つまり Redux ではステートが一箇所に集中するのに対し、Recoil は複数に分割することができます。「ある 2 つのコンポーネントで状態を共有したいけど位置関係的に Props のバケツリレーはつらい。でも Redux のストアに入れるほどでもない...。」といった場合でも、Recoil なら 2 つのコンポーネントでのみ使用される Atom を作成するだけなので、気軽にグローバルステートを作成することができます。また、Redux のように特定のアーキテクチャが決まっていません。１つの Atom に状態を詰め込めば Redux のようにも使えます。開発者に状態の分割方法やフォルダ構成、ロジックの置き場所などの決定権が大きく委ねられられているため実力の見せ所でしょう。
 
 Redux と Recoil の詳しい違いについては [うひょさん](https://twitter.com/uhyo_) のブログが非常にわかりやすかったためご紹介させていただきます。
 
@@ -365,13 +376,14 @@ function Controls() {
 }
 ```
 
-今回は `create` 関数で定義した状態や 関数 (Action) を個別に取得していますが、全て取得することもできます。ただし無駄な際レンダリングが発生する可能性があるため、基本的にはコンポーネント内で使用している状態のみ取得するようにします。考え方は Redux の Selector と同じですね。
+今回は `create` 関数で定義した状態や 関数 (Action) を個別に取得していますが、全て取得することもできます。ただし無駄な再レンダリングが発生する可能性があるため、基本的にはコンポーネント内で使用している状態のみ取得するようにします。考え方は Redux の Selector と同じですね。
 
 ```js
+// 全て取得
 const state = useBearStore();
 ```
 
-基本的な部分しか触れてませんが、Redux と Recoil の中間のような印象を受けました。ストアは Redux に近いですが、ストアを読み書きする側は Recoil に近い気がします。Redux 思想のいいとこ取りをしつつ Hooks を使用して状態管理できる超軽量ライブラリということで注目を集めているのでしょう。脱 Redux の第一候補であることは間違いありません。まだ公式サイトがないため Github の [docs](https://github.com/pmndrs/zustand/tree/main/docs) を参考にすると良いでしょう。
+基本的な部分しか触れてませんが、Redux と Recoil の中間のような印象を受けました。ストアは Redux に近いですが、ストアを読み書きする側は Recoil に近い気がします。Redux 思想のいいとこ取りをしつつ Hooks を使用して状態管理できる超軽量ライブラリということで注目を集めているのだと思います。脱 Redux の第一候補であることは間違いありません。まだ公式サイトがないため Github の [docs](https://github.com/pmndrs/zustand/tree/main/docs) を参考にすると良いでしょう。
 
 ## Jotai
 
@@ -408,7 +420,7 @@ const citiesAtom = atom(['Tokyo', 'Kyoto', 'Osaka']);
 const mangaAtom = atom({ 'Dragon Ball': 1984, 'One Piece': 1997, Naruto: 1999 });
 ```
 
-コンポーネントで Atom を使用します。プロバイダーのようなものでラップする必要はありません。Recoil 同様 `useState` と同じとうな API です。
+コンポーネントで Atom を使用します。プロバイダーのようなものでラップする必要はありません。Recoil 同様 `useState` と同じような API です。
 
 ```js
 import { useAtom } from 'jotai';
@@ -473,7 +485,8 @@ read 関数 + write 関数 を見ていきます。Atom から新しい**読み�
 const countAtom = atom(0);
 const addingCountAtom = atom(
   (get) => get(countAtom), // read 関数
-  (get, set, num) => { // write 関数
+  (get, set, num) => {
+    // write 関数
     set(countAtom, get(countAtom) + num);
   }
 );
@@ -489,7 +502,7 @@ function Counter() {
 }
 ```
 
-全てを Atom で完結させることができ、複雑なデータ構造も Atom を組み合わせることで柔軟に表現できそうだと感じました。既に記載しましたが、Recoil と異なり Atom にキーを設定する必要がないだけでも採用するメリットはありそうです。アプリケーションの規模が大きくなるにつれキーの管理が煩雑になるのは目に見えています。サイズの小ささを見ても Recoil を大きくリードしています。API もかなり直感的で React 開発者あれば学習に必要な時間はほとんどないでしょう。
+全てを Atom で完結させることができ、複雑なデータ構造も Atom を組み合わせることで柔軟に表現できそうだと感じました。既に記載しましたが、Recoil と異なり Atom にキーを設定する必要がないだけでも採用するメリットはありそうです。アプリケーションの規模が大きくなるにつれキーの管理が煩雑になるのは目に見えています。サイズの小ささを見ても Recoil を大きくリードしています。API も直感的で React 開発者あれば学習に必要な時間はほとんどないでしょう。
 
 開発現場で「Jotai の状態どうなっている？」という会話がありそうななさそうな...笑
 
@@ -754,7 +767,9 @@ Redux Toolkit も Rematch も実務で使用した経験はないため何とも
 
 ## まとめ
 
-甲乙つけがたいですが個人的には Jotai が優勝でした。とてもシンプル・軽量であり、設計は開発者の実力に委ねられているところが好きです。(何より日本人の方が開発しているので応援したくなります☺️)
+甲乙つけがたいですが個人的には Jotai が優勝でした。とてもシンプル・軽量であり、設計は開発者の実力に委ねられているところが好きです。(何より日本人の方が開発しているので応援したくなります ☺️)
+
+ただ全ての要件に対応できるライブラリというのは基本的に存在しません。アプリケーションの規模や、メンバーの状況によって採用すべきものは変わってきます。それぞれの特徴を把握した上で適切に技術選定できる力が必要です。
 
 普段は React 標準の Context や Apollo を使用する機会が多いため、今後は今回記載したライブラリも積極的に使用していきたいです。また、SWR や React Query と組み合わせた場合についても深ぼっていけたらなと思います。
 
