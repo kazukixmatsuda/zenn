@@ -580,13 +580,6 @@ https://blog.axlight.com/posts/how-valtio-proxy-state-works-vanilla-part/
 
 https://blog.axlight.com/posts/how-valtio-proxy-state-works-react-part/
 
-## Mobx
-
-https://mobx.js.org/README.html
-
-- Meta 社の [Michel Weststrate さん](https://twitter.com/mweststrate)が開発
-- [16.4kB](https://bundlephobia.com/package/mobx@6.7.0)
-
 ## Nano stores
 
 https://github.com/nanostores/nanostores
