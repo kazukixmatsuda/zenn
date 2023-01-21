@@ -1,9 +1,9 @@
 ---
-title: 'React の状態管理ライブラリ10選'
+title: 'React の状態管理ライブラリ9選'
 emoji: '😎'
 type: 'tech'
 topics: ['react']
-published: false
+published: true
 ---
 
 ## はじめに
@@ -18,7 +18,7 @@ published: false
 
 筆者もこのような状況に直面しました。状態が 5 個程度であれば何の問題もないかもしれません。ただそれが 10、20..と増えていった場合、**いつ、なぜ、どのように状態を制御するのかがわからなくなります**。このような複雑さを少しでも楽に管理し、デグレすることを恐れずに自信を持って開発できるよう日々ベストプラクティスが模索され、ライブラリが開発されているというわけです。
 
-という、the 技術記事 のような書き出しをしましたが、今回は設計論的なお堅い話をするわけではなく、主要な React の状態管理ライブラリを 10 個筆者が触ってみて感じたことや、それぞれの特徴、基本的な使い方について書きたいと思います。。比較表などを使用して優劣をつけるわけではありません。基本的に公式サイトを参考にしています。
+という、the 技術記事 のような書き出しをしましたが、今回は設計論的なお堅い話をするわけではなく、主要な React の状態管理ライブラリを 9 個筆者が触ってみて感じたことや、それぞれの特徴、基本的な使い方について書きたいと思います。比較表などを使用して優劣をつけるわけではありません。基本的に公式サイトを参考にしています。
 
 登場するライブラリはこちら。
 
@@ -27,7 +27,6 @@ published: false
 - Zustand
 - Jotai
 - Valtio
-- MobX
 - Nano stores
 - Hookstate
 - Elf
@@ -38,6 +37,10 @@ published: false
 :::
 
 余談ですが [npm trends](https://npmtrends.com/@hookstate/core-vs-@ngneat/elf-vs-jotai-vs-mobx-vs-nanostores-vs-recoil-vs-redux-vs-valtio-vs-zustand) のデータを見てみます。
+
+![](https://storage.googleapis.com/zenn-user-upload/6a293266ee9b-20230121.png)
+
+Redux の圧勝ですね。Redux を批判するような記事を時々見かけますが、新規プロジェクトでの採用率が気になります。既に Redux で書かれたものを移行するコストが大きすぎることなども影響してそうです。
 
 ## Redux
 
@@ -53,7 +56,7 @@ https://redux.js.org/
 本記事に記載のサイズは　 minified + gzipped されたものです。
 :::
 
-※ この記事では Action や Reducer、Dispatch など Redux の基本的な概念の説明は行いません。もし Redux に触れたことがない方は、公式サイトの[チュートリアル](https://redux.js.org/tutorials/essentials/part-1-overview-concepts)がとてもわかりやすいためそちらをご参考ください。
+※ この記事では Action や Reducer、Dispatch など Redux の基本的な概念の説明は行いません。もし Redux に触れたことがない方は、公式サイトの[チュートリアル](https://redux.js.org/tutorials/essentials/part-1-overview-concepts)がとてもわかりやすいためそちらをご参考にしてください。
 
 React の状態管理ライブラリではもっとも使用され有名である Redux ですが、React が Hooks の世界に突入後、一気に人気が落ちた気がします。ローカルステートは `useState` で手軽に制御できる反面、グルーバルステートは起こりうるすべての状態変化パターンの Action を書き、さらにそれらの Action を処理するために Reducer を書くと、多くのコードが必要になり、すぐにメンテナンスコストが肥大化してしまうことが問題点の一つでしょう。
 
@@ -81,7 +84,7 @@ Action によってステートがどのように更新されるかを指定す�
 
 ![](https://storage.googleapis.com/zenn-user-upload/b47d4ad813d9-20230115.png)
 
-より具体的な図がこちらです。難しいことをやっているように見えますが、Action を ストアに送り、Action の内容をもとに Reducer が ステート更新し、更新したことが UI へ通知され、新しいステートをもとに再レンダリングしているだけです。
+より具体的な図を見てみます。なんやら難しいことをやっているように見えますが、Action を ストアに送り、Action の内容をもとに Reducer が ステート更新し、更新したことが UI へ通知され、新しいステートをもとに再レンダリングしているだけです。
 
 ![](https://storage.googleapis.com/zenn-user-upload/37638d33b12d-20230118.gif)
 
@@ -121,9 +124,9 @@ export const counterSlice = createSlice({
   },
   reducers: {
     increment: state => {
-      // Redux のルール違反である「現在の状態を変更」しているように見えますが
-      // 内部で Immer を使用しているため、実際には現在の状態を変更していません。
-      // 変更を検知し内部的に新しい状態を作成しています。
+      // Redux のルール違反である「現在のステートを変更」しているように見えますが
+      // 内部で Immer を使用しているため、実際には現在のステートを変更していません。
+      // 変更を検知し内部的に新しいステートを作成しています。
       state.value += 1
     },
     decrement: state => {
@@ -205,7 +208,7 @@ https://recoiljs.org/
 
 Recoil は Redux の一強を打ち砕く筆頭候補だと思っています。Meta 社が開発していることもあり React との相性もいいです。React 開発者であればすぐに使うことができるでしょう。早速見ていきます。
 
-Recoil の状態を使用するコンポーネントは、`RecoilRoot` で囲む必要があります。Redux や Context の Provider 相当です。
+Recoil のステートを使用するコンポーネントは、`RecoilRoot` で囲む必要があります。Redux や Context の Provider 相当です。
 
 ```js
 import { RecoilRoot } from 'recoil';
@@ -225,7 +228,7 @@ function App() {
 // Atom を作成
 const fontSizeState = atom({
   key: 'fontSizeState',
-  default: 14 // 初期値
+  default: 14, // 初期値
 });
 ```
 
@@ -265,7 +268,7 @@ const fontSizeLabelState = selector({
     const unit = 'px';
 
     return `${fontSize}${unit}`;
-  }
+  },
 });
 ```
 
@@ -282,10 +285,7 @@ function FontButton() {
     <>
       <div>Current font size: {fontSizeLabel}</div>
 
-      <button
-        onClick={() => setFontSize(fontSize + 1)}
-        style={{ fontSize }}
-      >
+      <button onClick={() => setFontSize(fontSize + 1)} style={{ fontSize }}>
         Click to Enlarge
       </button>
     </>
@@ -293,11 +293,15 @@ function FontButton() {
 }
 ```
 
-Redux の中央集権制とすると Recoil は地方分権制とでも言えるでしょうか。つまり Redux ではステートが一箇所に集中するのに対し、Recoil は複数に分割することができます。「ある 2 つのコンポーネントで状態を共有したいけど位置関係的に Props のバケツリレーはつらい。でも Redux のストアに入れるほどでもない...。」といった場合でも、Recoil なら 2 つのコンポーネントでのみ使用される Atom を作成するだけなので、気軽にグローバルステートを作成することができます。また、Redux のように特定のアーキテクチャが決まっていません。１つの Atom に状態を詰め込めば Redux のようにも使えます。開発者に状態の分割方法やフォルダ構成、ロジックの置き場所などの決定権が大きく委ねられられているため実力の見せ所でしょう。
+Redux の中央集権制とすると Recoil は地方分権制とでも言えるでしょうか。つまり Redux ではステートが一箇所に集中するのに対し、Recoil は複数に分割することができます。「ある 2 つのコンポーネントでステートを共有したいけど位置関係的に Props のバケツリレーはつらい。でも Redux のストアに入れるほどでもない...。」といった場合でも、Recoil なら 2 つのコンポーネントでのみ使用される Atom を作成するだけなので、気軽にグローバルステートを作成することができます。また、Redux のように特定のアーキテクチャが決まっていません。１つの Atom にステートを詰め込めば Redux のようにも使えます。開発者にステートの分割方法やフォルダ構成、ロジックの置き場所などの決定権が大きく委ねられられているため実力の見せ所でしょう。
 
 Redux と Recoil の詳しい違いについては [うひょさん](https://twitter.com/uhyo_) のブログが非常にわかりやすかったためご紹介させていただきます。
 
 https://blog.uhy.ooo/entry/2021-07-24/react-state-management/
+
+この記事を執筆中にうひょさんが Recoil に関するスライドを出されたのでそちらも紹介。
+
+https://speakerdeck.com/uhyo/sutetoguan-li-wochao-erurecoilyun-yong-nokao-efang
 
 ## Zustand
 
@@ -313,18 +317,18 @@ https://github.com/pmndrs/zustand
 
 Zustand は [JavaScript Rising Stars](https://risingstars.js.org/2022/en#section-statemanagement) の状態管理部門で 2 年連続 1 位に輝いています。今回紹介するするライブラリの中で最も勢いがあると言っても過言ではないでしょう。
 
-まずストアを作成します。`create` 関数を使用してストアを定義し、戻り値の Hook で状態の操作をおこないます。Redux と同じく状態は不変に更新する必要があります。ストアには状態と、状態を変更する Action が含まれます。RTK の Slice を簡素化した印象です。
+まずストアを作成します。`create` 関数を使用してストアを定義し、戻り値の Hook でステートの操作をおこないます。Redux と同じくステートは不変に更新する必要があります。ストアにはステートと、ステートを変更する Action が含まれます。RTK の Slice を簡素化した印象です。
 
 ```js
 import { create } from 'zustand';
 
 const useBearStore = create((set) => ({
-  bears: 0, // 状態
-  increasePopulation: () => set((state) => ({ bears: state.bears + 1 })) // Action
+  bears: 0, // ステート
+  increasePopulation: () => set((state) => ({ bears: state.bears + 1 })), // Action
 }));
 ```
 
-注目すべき点は `set` 関数です。状態は不変に更新する必要があるため、本来ならこのように記載する必要があるはずです。
+注目すべき点は `set` 関数です。ステートは不変に更新する必要があるため、本来ならこのように記載する必要があるはずです。
 
 ```js
 set((state) => ({ ...state, bears: state.bears + 1 }));
@@ -345,8 +349,11 @@ const useCountStore = create((set) => ({
   nested: { count: 0 },
   inc: () =>
     set((state) => ({
-      nested: { ...state.nested, count: state.nested.count + 1 }
-    }))
+      nested: {
+        ...state.nested,
+        count: state.nested.count + 1,
+      },
+    })),
 }));
 ```
 
@@ -358,7 +365,7 @@ const useFishStore = create((set) => ({
   fetch: async (pond) => {
     const response = await fetch(pond);
     set({ fishies: await response.json() });
-  }
+  },
 }));
 ```
 
@@ -376,7 +383,7 @@ function Controls() {
 }
 ```
 
-今回は `create` 関数で定義した状態や 関数 (Action) を個別に取得していますが、全て取得することもできます。ただし無駄な再レンダリングが発生する可能性があるため、基本的にはコンポーネント内で使用している状態のみ取得するようにします。考え方は Redux の Selector と同じですね。
+今回は `create` 関数で定義したステートや 関数 (Action) を個別に取得していますが、全て取得することもできます。ただし無駄な再レンダリングが発生する可能性があるため、基本的にはコンポーネント内で使用しているステートのみ取得するようにします。考え方は Redux の Selector と同じですね。
 
 ```js
 // 全て取得
@@ -417,7 +424,11 @@ import { atom } from 'jotai';
 const countAtom = atom(0);
 const countryAtom = atom('Japan');
 const citiesAtom = atom(['Tokyo', 'Kyoto', 'Osaka']);
-const mangaAtom = atom({ 'Dragon Ball': 1984, 'One Piece': 1997, Naruto: 1999 });
+const mangaAtom = atom({
+  'Dragon Ball': 1984,
+  'One Piece': 1997,
+  Naruto: 1999,
+});
 ```
 
 コンポーネントで Atom を使用します。プロバイダーのようなものでラップする必要はありません。Recoil 同様 `useState` と同じような API です。
@@ -474,7 +485,7 @@ const fetchUrlAtom = atom(async (get) => {
 })
 
 function Status() {
-  // 非同期処理が完了後際レンダリングされる
+  // 非同期処理が完了後再レンダリングされる
   const [json] = useAtom(fetchUrlAtom)
   ...
 ```
@@ -512,7 +523,7 @@ https://valtio.pmnd.rs/
 
 - Proxy ベース
 - JavaScript のオブジェクトをそのまま React の状態として使える
-- Redux や Zustand とは異なり mutablestate model
+- Redux や Zustand とは異なり Mutable State Model
 - またまたまた [Daishi Kato さん](https://twitter.com/dai_shi)が開発している
 - [2.9kB](https://bundlephobia.com/package/valtio@1.8.2)
 
@@ -532,7 +543,7 @@ setInterval(() => {
 }, 1000);
 ```
 
-プロキシの変更を補足するには `useSnapshot` を使用します。コンポーネントはアクセスした状態が変更されたときのみ再レンダリングされるため、レンダリングが最適化されます。
+プロキシの変更をサブスクライブには `useSnapshot` を使用します。コンポーネントはアクセスしたステートが変更されたときのみ再レンダリングされるため、レンダリングが最適化されます。
 
 ```jsx
 // `state.count` の変更時に再レンダリングされるが `state.text` の変更時にはされない
@@ -546,6 +557,28 @@ function Counter() {
   );
 }
 ```
+
+コンポーネントの外側でもプロキシの変更をサブスクライブできます。
+
+```js
+import { subscribe } from 'valtio';
+
+const state = proxy({
+  obj: { foo: 'bar' },
+  arr: ['hello'],
+});
+
+subscribe(state, () => console.log('state has changed to', state));
+
+// 一部のステートのみサブスクライブも可能
+subscribe(state.obj, () => console.log('state.obj has changed to', state.obj));
+```
+
+他のライブラリとは違ったアプローチで面白いですね。Mutable State と Immutable State の違いやプロキシを使用した状態管理の仕組みについては Daishi Kato さんが書かれた記事に詳しく書かれているためご紹介させていただきます。
+
+https://blog.axlight.com/posts/how-valtio-proxy-state-works-vanilla-part/
+
+https://blog.axlight.com/posts/how-valtio-proxy-state-works-react-part/
 
 ## Mobx
 
@@ -565,7 +598,7 @@ https://github.com/nanostores/nanostores
 - ロジックをコンポーネントからストアに移動するように設計された
 - [1.6kB](https://bundlephobia.com/package/nanostores@0.7.1)
 
-Recoil、Jotai と同じく Atom 単位で状態を管理します。作成した Atom の `get()` `set()` メソッドを使用して読み書きを行います。
+Recoil、Jotai と同じく Atom 単位でステートを管理します。作成した Atom の `get()` `set()` メソッドを使用して読み書きを行います。
 
 ```js:store/users.ts
 import { atom } from 'nanostores'
@@ -620,12 +653,62 @@ export const Admins = () => {
 import { map } from 'nanostores';
 
 export const profile = map({
-  name: 'anonymous'
+  name: 'anonymous',
 });
 
 // 変更
 profile.set({ name: 'Kazimir Malevich' });
 profile.setKey('name', 'Kazimir Malevich');
+```
+
+map 関数の実装を見てみます。
+
+```js:map/index.js
+import { atom } from '../atom/index.js'
+
+export let map = (value = {}) => {
+  let store = atom(value)
+
+  store.setKey = function (key, newValue) {
+    if (typeof newValue === 'undefined') {
+      if (key in store.value) {
+        store.value = { ...store.value }
+        delete store.value[key]
+        store.notify(key)
+      }
+    } else if (store.value[key] !== newValue) {
+      store.value = {
+        ...store.value,
+        [key]: newValue
+      }
+      store.notify(key)
+    }
+  }
+
+  return store
+}
+```
+
+とてもシンプルですね。状態管理ライブラリの内部実装を勉強する第一歩として適しているかもしれません。
+
+`action` 関数を使用してストアを変更することもできます。バリデーションやネットワーク操作などのビジネスロジックを動かすのに適しています。
+
+```js
+import { action } from 'nanostores';
+
+export const increase = action(
+  counter, // ストア
+  'increase', // action 名
+  (store, add) => {
+    if (validateMax(store.get() + add)) {
+      store.set(store.get() + add);
+    }
+    return store.get();
+  }
+);
+
+increase(1); //=> 1
+increase(5); //=> 6
 ```
 
 基本的には Recoil や Jotai と同じような印象を受けました。今回は紹介しきれませんが、LocalStorage の操作、SPA ルーター、翻訳を可能にする I18n ライブラリなど公式が提供しているツールもあります。
@@ -638,42 +721,168 @@ https://hookstate.js.org/
 - プラグインシステム
 - [6.1kB](https://bundlephobia.com/package/@hookstate/core@4.0.0)
 
-状態は `hookstate` を使用して作成します。コンポーネントの外部で状態の値を取得、更新できます。コンポーネント内部で状態を使用する場合は `useHookstate` を使用します。状態の値には `get` `set` メソッドを通してアクセスします。
+ステートは `hookstate` 関数を使用して作成します。コンポーネントの外部でステートの値を取得、更新できます。コンポーネント内部でステートを使用する場合は `useHookstate` を使用します。ステートの値には `get` `set` メソッドを通してアクセスします。
 
-```js
+```jsx
 import { hookstate, useHookstate } from '@hookstate/core';
 
-// 状態の作成
+// ステートの作成
 const globalState = hookstate(0);
 
 // コンポーネントの外部
 setInterval(() => globalState.set((p) => p + 1), 3000);
 
-export const ExampleComponent = () => {
+const ExampleComponent = () => {
   // コンポーネントの内部
   const state = useHookstate(globalState);
   return (
     <>
-      <b>Counter value: {state.get()}</b> (watch +1 every 3 seconds){' '}
+      <p>Counter value: {state.get()}</p>
       <button onClick={() => state.set((p) => p + 1)}>Increment</button>
     </>
   );
 };
 ```
 
-React 組み込みの `useState` の代わりに Hookstate を使用することもできます。
+React 組み込みの `useState` の代わりに `useHookstate` を使用することもできます。
+
+```jsx
+import { useHookstate } from '@hookstate/core';
+
+export const ExampleComponent = () => {
+  const state = useHookstate(0);
+  return (
+    <>
+      <b>Counter value: {state.get()} </b>
+      <button onClick={() => state.set((p) => p + 1)}>Increment</button>
+    </>
+  );
+};
+```
+
+`useHookstate` の使い方を詳しく見ていきます。
+
+```ts
+const state = useHookstate({ a: 1, b: 2 });
+
+// 更新
+state.set({ a: 2, b: 3 });
+state.set((p) => ({ a: p.a + 1, b: p.b - 1 }));
+
+// 一部のみ更新 (プロパティ a が使用されている全てのコンポーネントを再レンダリング)
+state.a.set((p) => p + 1);
+state['a'].set((p) => p + 1);
+state.merge((p) => ({ a: p.a + 1 }));
+
+// プロパティ名を取得
+const keys = state.keys; //  ['a', 'b']
+
+// プロパティを追加
+const state = useHookstate<{ a: number; b?: number }>({
+  a: 1,
+});
+state.b.set(2);
+state['b'].set(2);
+state.merge({ b: 2 });
+
+// プロパティを削除
+import { none } from '@hookstate/core';
+state.b.set(none);
+state['b'].set(none);
+state.merge({ b: none });
+```
+
+Hookstate の公式サイトにはこのように書かれています。
+
+> Incredible performance based on unique method for tracking of used/rendered and updated state segments. Ideal solution for huge states and very frequent updates.
+
+ドキュメントにも [パフォーマンス専用のセクション](https://hookstate.js.org/docs/performance-intro)があったりと、スピードにかなり自信を持っていることがわかります。[このページ](https://hookstate.js.org/docs/performance-large-state)には Hookstate で管理された 5000 個のフォームがありますが、確かにチラつきを感じることはありません。今回パフォーマンスの計測までは行いませんが、他のライブラリと比較してみるのも面白そうです。
 
 ## Elf
 
 https://ngneat.github.io/elf/
 
-- RxJS の上に構築
-- 必要なものだけバンドル
+- RxJS 上に構築
+- 複数ストアを作成可能で、必要なものだけバンドルされる
+- ページネーションをビルトインサポート
 - [2kB](https://bundlephobia.com/package/@ngneat/elf@2.3.0)
 
-Akita という状態管理ライブラリが前身のようです。
+[Akita](https://opensource.salesforce.com/akita/) という状態管理ライブラリが前身のようです。
 
-https://opensource.salesforce.com/akita/
+RxJS やリアクティブプログラミングという言葉の意味については、[奥野 賢太郎](https://twitter.com/okunokentaro?s=20&t=Jsp0QAMuu_DMo6QJ36g54Q) さんが書かれた記事がわかりやすいためおすすめです。
+
+https://www.codegrid.net/articles/2017-rxjs-1/
+
+`createStore` 関数でストアを作成します。
+
+```ts
+import { createStore, withProps } from '@ngneat/elf';
+
+interface AuthProps {
+  user: { id: string } | null;
+}
+
+const authStore = createStore(
+  { name: 'auth' }, // ストア名
+  withProps < AuthProps > { user: null }
+);
+```
+
+`select` 関数を使用してストアからスライスを選択できます。
+
+```js
+import { select } from '@ngneat/elf';
+
+const user$ = authStore.pipe(select((state) => state.user));
+```
+
+`updade` 関数を使用してストアを更新します。
+
+```js
+authStore.update((state) => ({
+  ...state,
+  user: { id: 'foo' },
+}));
+```
+
+Elf の重要な機能の一つである Entities を簡単に紹介します。この機能により、ストアはエンティティストアとして動作するようになります。
+
+エンティティストアを作成します。
+
+```ts
+import { createStore } from '@ngneat/elf';
+import { withEntities } from '@ngneat/elf-entities';
+
+interface Todo {
+  id: number;
+  label: string;
+}
+
+const todosStore = createStore({ name: 'todos' }, withEntities<Todo>());
+```
+
+これにより、ミューテーションとクエリを使用できるようになります。いくつかみていきましょう。
+
+```js
+// ストアのエンティティコレクション全体を選択
+import { selectAllEntities } from '@ngneat/elf-entities';
+const todos$ = todosStore.pipe(selectAllEntities());
+
+// ストアから複数のエンティティを選択
+import { selectMany } from '@ngneat/elf-entities';
+const todos$ = todosStore.pipe(selectMany([id, id]));
+const titles$ = todosStore.pipe(selectMany(id, { pluck: 'title' }));
+
+// ストアから最初のエンティティを選択
+import { selectFirst } from '@ngneat/elf-entities';
+const first$ = todosStore.pipe(selectFirst());
+
+// ストアのエンティティコレクションのサイズを選択
+import { selectEntitiesCount } from '@ngneat/elf-entities';
+const count$ = todosStore.pipe(selectEntitiesCount());
+```
+
+今回は Query 系を紹介しましたが、Mutation もライブラリが用意している便利は関数が多くあります。ORM を使用しているようで面白いです。公式ドキュメントにも紹介がありますが、リポジトリパターンと相性が良さそうですね。
 
 ## Rematch
 
@@ -684,7 +893,7 @@ https://rematchjs.org/
 - プラグインシステム
 - [1.7kB](https://bundlephobia.com/package/@rematch/core@2.2.0)
 
-まずモデルを作成します。モデルは状態、Reducer、非同期 Action を一つの場所にまとめます。
+まずモデルを定義します。モデルはステート、Reducer、非同期 Action を一つにまとめたものです。
 
 ```js
 export const count = {
@@ -693,16 +902,51 @@ export const count = {
     // 純粋関数での処理
     increment(state, payload) {
       return state + payload;
-    }
+    },
   },
   effects: (dispatch) => ({
     // 純粋関数でない場合の処理
     async incrementAsync(payload, rootState) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       dispatch.count.increment(payload);
-    }
-  })
+    },
+  }),
 };
+```
+
+ただの JavaScript オブジェクトですね。これだと型がつかなそうですが、TypeScript も 100% サポートされています。ヘルパーメソッド `createModel` を使用してモデルを作成します。
+
+```ts:./models/count.ts
+import { createModel } from '@rematch/core';
+import { RootModel } from '.';
+
+export const count = createModel<RootModel>()({
+  state: 0,
+  reducers: {
+    increment(state, payload: number) {
+      return state + payload;
+    },
+  },
+  effects: (dispatch) => ({
+    async incrementAsync(payload: number, state) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, 1000)
+      );
+      dispatch.count.increment(payload);
+    },
+  }),
+});
+```
+
+```ts:./models/index.ts
+import { Models } from "@rematch/core";
+import { count } from "./count";
+
+export interface RootModel extends Models<RootModel> {
+  count: typeof count;
+}
+
+export const models: RootModel = { count };
 ```
 
 ストアの初期化をします。
@@ -716,7 +960,7 @@ const store = init({ models });
 export default store;
 ```
 
-Action を Dispatch してモデル内の Reducer や Effect をトリガーします。
+Action を Dispatch してモデル内の Reducer や Effect をトリガーします。`dispatch[model][action](payload)` というショートハンドを使うこともできます。
 
 ```js
 const { dispatch } = store;
@@ -732,7 +976,7 @@ dispatch.count.incrementAsync(1); // state = { count: 4 } after delay
 
 `react-redux` を使用し、コンポーネントからモデルを操作してみます。
 
-```js
+```jsx
 import { Provider, connect } from 'react-redux';
 import store from './store';
 
@@ -745,12 +989,12 @@ const Count = (props) => (
 );
 
 const mapState = (state) => ({
-  count: state.count
+  count: state.count,
 });
 
 const mapDispatch = (dispatch) => ({
   increment: () => dispatch.count.increment(1),
-  incrementAsync: () => dispatch.count.incrementAsync(1)
+  incrementAsync: () => dispatch.count.incrementAsync(1),
 });
 
 const CountContainer = connect(mapState, mapDispatch)(Count);
@@ -763,11 +1007,45 @@ ReactDOM.render(
 );
 ```
 
-Redux Toolkit も Rematch も実務で使用した経験はないため何とも言えませんが、Redux を使用したい場合 Redux Toolkit で充分なのではないかと感じました。Rematch の最も大きいアドバンテージはサイズの小ささでしょう。Rematch の 1.7kB に対して、Redux Toolkit は [13.5kB](https://bundlephobia.com/package/@reduxjs/toolkit@1.9.1) あります。最近はバンドルサイズを小さくすることに焦点が当てられる機会が多いので、Rematch でも要件を満たせる場合は積極的に採用してもいいかもしれません。
+公式が提供しているプラグインがいくつかあるため、今回は Immer プラグインを見てみます。Redux Toolkit と同じような使われ方で、Reducer をラップしステートの更新処理を書きやすくします。プラグインの設定はストア作成時に行います。
+
+```ts
+import immerPlugin from '@rematch/immer';
+import { init } from '@rematch/core';
+import { models, RootModel } from './models';
+
+export const store = init<RootModel>({
+  models,
+  plugins: [immerPlugin()], // 追加
+});
+```
+
+```ts
+import { createModel } from '@rematch/core';
+import { RootModel } from './models';
+
+export const todo = createModel<RootModel>()({
+  state: [
+    {
+      todo: 'Learn typescript',
+      done: true,
+    },
+  ],
+  reducers: {
+    done(state) {
+      // 見た目上はミュータブル更新ができる
+      state.push({ todo: 'Tweet about it', done: false });
+      state[1].done = true;
+    },
+  },
+});
+```
+
+Redux Toolkit も Rematch も実務で使用した経験はないため何とも言えませんが、Redux を使用したい場合 Redux Toolkit で充分なのでは？と感じました。Rematch の最も大きいアドバンテージはサイズの小ささでしょう。Rematch の 1.7kB に対して、Redux Toolkit は 13.5kB あります。最近はバンドルサイズを小さくすることに焦点が当てられる機会が多いので、Rematch でも要件を満たせる場合は積極的に採用してもいいかもしれません。
 
 ## まとめ
 
-甲乙つけがたいですが個人的には Jotai が優勝でした。とてもシンプル・軽量であり、設計は開発者の実力に委ねられているところが好きです。(何より日本人の方が開発しているので応援したくなります ☺️)
+甲乙つけがたいですが個人的には Jotai が優勝でした。とてもシンプル・軽量であり、設計は開発者の実力に大きく委ねられているところが好きです。(何より日本人の方が開発しているので応援したくなります)
 
 ただ全ての要件に対応できるライブラリというのは基本的に存在しません。アプリケーションの規模や、メンバーの状況によって採用すべきものは変わってきます。それぞれの特徴を把握した上で適切に技術選定できる力が必要です。
 
