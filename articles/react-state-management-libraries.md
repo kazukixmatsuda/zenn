@@ -159,7 +159,7 @@ export default configureStore({
 
 コンポーネントからストアの読み書きを行います。読み込みには `useSelector` を使用し、必要なステートのみ選択します。そうすることで取得したステート以外が更新された場合でもコンポーネントは再レンダリングされません。書き込みは Action creator を実行し、dispatch するだけです。
 
-```js:features/counter/Counter.js
+```jsx:features/counter/Counter.js
 import { useSelector, useDispatch } from 'react-redux'
 import { decrement, increment } from './counterSlice'
 
@@ -202,7 +202,7 @@ https://recoiljs.org/
 - Meta 社が開発
 - Atom, Selector という基本概念
 - Redux のように特定のアーキテクチャを強制されない
-- Hooks のような API
+- Hooks を使用した状態管理
 - 状態定義は分散型であるためコード分割が可能
 - [23.4kB](https://bundlephobia.com/package/recoil@0.7.6) (結構大きいな...)
 
@@ -310,7 +310,7 @@ https://github.com/pmndrs/zustand
 - ドイツ語で「状態」という意味
 - 公式マスコットのくまさんが可愛い 🧸
 - Redux に近い
-- Hooks のような API
+- Hooks を使用した状態管理
 - 日本人の [Daishi Kato さん](https://twitter.com/dai_shi)が開発している
 - 超軽量
 - [1.1kB](https://bundlephobia.com/package/zustand@4.3.1)
@@ -369,9 +369,9 @@ const useFishStore = create((set) => ({
 }));
 ```
 
-コンポーネントからストアの値を読み書きしてみます。フックはどもからでも使用できるため、プロバイダーのようなものでラップする必要はありません。
+コンポーネントからストアの値を読み書きしてみます。Hook はどもからでも使用できるため、プロバイダーのようなものでラップする必要はありません。
 
-```js
+```jsx
 function BearCounter() {
   const bears = useBearStore((state) => state.bears);
   return <h1>{bears} around here ...</h1>;
@@ -433,7 +433,7 @@ const mangaAtom = atom({
 
 コンポーネントで Atom を使用します。プロバイダーのようなものでラップする必要はありません。Recoil 同様 `useState` と同じような API です。
 
-```js
+```jsx
 import { useAtom } from 'jotai';
 
 function Counter() {
@@ -447,6 +447,13 @@ function Counter() {
 }
 ```
 
+値の取得だけしたい場合は `useAtomValue`、更新だけしたい場合は `useSetAtom` を使用します。
+
+```js
+const count = useAtomValue(countAtom);
+const setCount = useSetAtom(countAtom);
+```
+
 `atom()` は下記 3 種類の引数を取れます。1 は既に紹介したため、2 と 3 を見ていきます。
 
 1. 初期値
@@ -455,7 +462,7 @@ function Counter() {
 
 read 関数を引数に渡す場合 Atom から新しい**読み取り専用の Atom** を作成することができます。Recoil の値を取得する Selector の役割に似ていますね。
 
-```js
+```jsx
 const countAtom = atom(1);
 const doubledCountAtom = atom((get) => get(countAtom) * 2);
 
@@ -492,7 +499,7 @@ function Status() {
 
 read 関数 + write 関数 を見ていきます。Atom から新しい**読み書き可能な Atom** を作成することができます。もし書き込み専用にしたい場合は read 関数に null を渡せば OK です。
 
-```js
+```jsx
 const countAtom = atom(0);
 const addingCountAtom = atom(
   (get) => get(countAtom), // read 関数
@@ -613,7 +620,7 @@ export const admins = computed(users, list =>
 )
 ```
 
-複数のストアを組み合わせることも可能です。
+複数の Atom を組み合わせることも可能です。
 
 ```js
 import { lastVisit } from './lastVisit.js';
@@ -626,7 +633,7 @@ export const newPosts = computed([lastVisit, posts], (when, allPosts) => {
 
 コンポーネントでは `useStore` を使用してストアから値を読み取ります。ストアの値が変更されると、コンポーネントは再レンダリングされます。
 
-```js:components/admins.tsx
+```jsx:components/admins.tsx
 import { useStore } from '@nanostores/react'
 import { admins } from '../stores/admins.js'
 
